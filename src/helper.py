@@ -41,8 +41,18 @@ def build_bloom_filter_from_file(filename):
             bloom_filter.insert(line.strip())
 
     # Save data structure onto local disk as binary file for future use
-    print("Saving binary into ", SAVED_BLOOM_FILTER)
-    with open(SAVED_BLOOM_FILTER, "wb") as output_file:
+    print(
+        "Saving binary into ",
+        resamble_filename(
+            SAVED_BLOOM_FILTER, "_" + filename.split("_")[2].split(".")[0]
+        ),
+    )
+    with open(
+        resamble_filename(
+            SAVED_BLOOM_FILTER, "_" + filename.split("_")[2].split(".")[0]
+        ),
+        "wb",
+    ) as output_file:
         pickle.dump(bloom_filter, output_file)
 
 
@@ -60,8 +70,18 @@ def build_cuckoo_filter_from_file(filename):
             cuckoo_filter.insert(line.strip())
 
     # Save data structure onto local disk as binary file for future use
-    print("Saving binary into ", SAVED_CUCKOO_FILTER)
-    with open(SAVED_CUCKOO_FILTER, "wb") as output_file:
+    print(
+        "Saving binary into ",
+        resamble_filename(
+            SAVED_CUCKOO_FILTER, "_" + filename.split("_")[2].split(".")[0], True
+        ),
+    )
+    with open(
+        resamble_filename(
+            SAVED_CUCKOO_FILTER, "_" + filename.split("_")[2].split(".")[0], True
+        ),
+        "wb",
+    ) as output_file:
         pickle.dump(cuckoo_filter, output_file)
 
 

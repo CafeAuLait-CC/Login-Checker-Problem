@@ -24,7 +24,7 @@ def main():
 
     print("Hey! I'm the Login Checker program. Which methods do you wanna try?")
     print(
-        "a. 1b\tb. 500m\tc. 250m\td. 150m\te. 100m\n"
+        "a. 1b\tb. 500m\tc. 250m\td. 150m\te. 100m\nf. 50m\tg. 10m\th. 1m"
         + " \n1. Linear Search\
             \n2. Binary Search\
             \n3. Hash Map\
@@ -40,7 +40,7 @@ def main():
             "\nEnter a operation(number + letter, e.g. '2e' for binary search on 100m dataset): "
         )
         cmds = list(option)
-        if len(cmds) != 2:
+        if option != "999" and len(cmds) != 2:
             print("Wrong input! Try again!")
             continue
         datasets = {
@@ -49,8 +49,11 @@ def main():
             "c": "_250m",
             "d": "_150m",
             "e": "_100m",
+            "f": "_50m",
+            "g": "_10m",
+            "h": "_1m",
         }
-        if cmds[1] not in datasets:
+        if option != 999 and cmds[1] not in datasets:
             print("Wrong dataset selection! Try again!")
             continue
 
