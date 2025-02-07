@@ -111,6 +111,12 @@ Again, from the output, we can know that the algorithm first spend some time con
 
 You may have noticed that the 590 is a bit higher than the one we got after running the binary search, which was 584. This is because bloom filer is a probabilistic data structure, and there may be false positives in the results. It's a normal action, so no need to be panic!
 
+Type `999` to exit the program
+```
+Enter a operation(number + letter, e.g. '2e' for binary search on 100Million (number of records) dataset): 999
+Byebye!
+```
+
 #### More Funs
 
 You have done a lot today! But the program can to a lot more!
