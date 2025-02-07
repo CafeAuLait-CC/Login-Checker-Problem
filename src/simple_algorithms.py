@@ -14,9 +14,10 @@ import time
 def run_linear_search(name_list, check_list):
     print("Running demo of Linear Search...")
     counter = 0
+    print("Linear Search is too slow! Force reducing the test set to 1000!")
     print("Start searching...")
     t_start = time.time()
-    for name in tqdm(check_list, total=len(check_list)):
+    for name in tqdm(check_list[:1000], total=1000):
         for i in range(len(name_list)):
             if name == name_list[i]:
                 counter += 1

@@ -13,7 +13,7 @@ from src.cuckoo_filter import CuckooFilter
 class TestCuckooFilter(unittest.TestCase):
     def setUp(self):
         """Initialize the Cuckoo Filter for testing."""
-        self.cf = CuckooFilter(total_capacity=100, bucket_size=4, fingerprint_size=8)
+        self.cf = CuckooFilter(capacity=100, bucket_size=4, fingerprint_size=8)
 
     def test_fingerprint(self):
         """Test if the fingerprint is calculated correctly."""
@@ -93,7 +93,7 @@ class TestCuckooFilter(unittest.TestCase):
         self.assertTrue(self.cf.exist(username))
 
         # Check for a username that was not inserted
-        non_existent_username = "non_existent_user"
+        non_existent_username = "non_existent_username"
         self.assertFalse(self.cf.exist(non_existent_username))
 
         # Insert multiple usernames and check their existence

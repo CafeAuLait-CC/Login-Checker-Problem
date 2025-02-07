@@ -12,7 +12,7 @@ import logging
 
 
 class CuckooFilter(object):
-    def __init__(self, total_capacity=int(1e9), bucket_size=4, fingerprint_size=12):
+    def __init__(self, capacity=int(1e9), bucket_size=4, fingerprint_size=12):
         # The num of slots in each bucket
         self.bucket_size = bucket_size
 
@@ -28,15 +28,16 @@ class CuckooFilter(object):
         In addition, to make sure the hash calculation results in a valid index number in the range [0, bucket_num],
         we'll use a power of 2 as the bucket_num
         """
-        self.load_factor = 0.8
+        self.load_factor = 0.25
         self.bucket_num_bit_length = int(
-            math.log2(total_capacity / (self.load_factor * self.bucket_size))
+            math.log2(capacity / (self.load_factor * self.bucket_size))
         )
         self.bucket_num = 2**self.bucket_num_bit_length
 
         self.buckets = [[] for _ in range(self.bucket_num)]
         self.finger_bits = fingerprint_size
-        self.max_kick = 900
+        self.max_kick = 800
+        self.hash_seed = 42
 
     # Insert an username into filter
     def insert(self, username):
@@ -45,6 +46,8 @@ class CuckooFilter(object):
         res = self.insert_into(finger, h1x)
         if res is not None:
             logging.error(res + f"\nFailed with username: {username}")
+            return False
+        return True
 
     """
     Insert fingerprint into buckets
@@ -86,7 +89,11 @@ class CuckooFilter(object):
         finger = self.fingerprint(username)
         h2x = self.h2(h1x, finger)
         try:
-            return finger in self.buckets[h1x] + self.buckets[h2x]
+            if finger in self.buckets[h1x]:
+                return True
+            if finger in self.buckets[h2x]:
+                return True
+            return False
         except IndexError:
             logging.error(
                 f"Failed to look for user: {username}. h1x:{h1x}, finger:{finger}, h2x:{h2x}, bucket_num:{self.bucket_num}"
@@ -114,31 +121,31 @@ class CuckooFilter(object):
         return self.h1(username) & ((1 << self.finger_bits) - 1)
 
     def h1(self, username: str) -> int:
-        return mmh3.hash(username) % self.bucket_num
+        return mmh3.hash(username, seed=self.hash_seed) % self.bucket_num
 
     def h2(self, h1x: int, fingerprint: int) -> int:
-        hf = mmh3.hash(str(fingerprint), signed=False)
-        # h1x_bit_length = h1x.bit_length()
-        # hf_bit_length = hf.bit_length()
-        # if hf_bit_length > h1x_bit_length:
-        #     hf = hf >> (hf_bit_length - h1x_bit_length + 1)
         """
         To make sure the resulting H2 value lies within the range of [0, bucket_number],
             we use bitmask to constrain the value of H2, calculating as follows:
 
             H2 = (H1 xor hash(fingerprint)) & (bucket_num - 1)
 
-        The bitmask (bucket_num - 1) effectively truncates the result of the XOR operation 
-            to the number of bits required to represent bucket_num. Since num_buckets is a power of 2, 
-            (num_buckets - 1) is a bitmask with all lower bits set to 1 
+        The bitmask (bucket_num - 1) effectively truncates the result of the XOR operation
+            to the number of bits required to represent bucket_num. Since num_buckets is a power of 2,
+            (num_buckets - 1) is a bitmask with all lower bits set to 1
             (e.g., for num_buckets = 256, the bitmask is 11111111 in binary).
         Reference: https://stackoverflow.com/questions/66585651
         """
+        hf = mmh3.hash(str(fingerprint), signed=False, seed=self.hash_seed)
         return (h1x ^ hf) & (self.bucket_num - 1)
+
+    def reset(self):
+        self.hash_seed += 1
+        self.buckets = [[] for _ in range(self.bucket_num)]
 
     # check if a bucket is full
     def full(self, idx: int):
         return len(self.buckets[idx]) == self.bucket_size
 
     def __str__(self):
-        return f"bucket size: {self.bucket_size}\nnumber of buckets: {self.bucket_num}\nfingerprint size: {self.finger_bits}"
+        return f"bucket size: {self.bucket_size}\nnumber of buckets: {self.bucket_num}\nfingerprint size: {self.finger_bits}\n{self.buckets}"

@@ -1,3 +1,10 @@
+#
+#  cuckoo_filter_ai.py
+#  Login Checker Program
+#
+#  Created by Generative AI (DeepSeek) on 2/5/25.
+#
+
 import mmh3
 
 
@@ -119,6 +126,9 @@ class CuckooFilter:
     def __str__(self):
         """String representation of the Cuckoo Filter."""
         return f"Cuckoo Filter: {self.buckets}"
+
+    def reset(self):
+        pass
 
 
 # Example usage
